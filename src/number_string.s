@@ -10,6 +10,11 @@
 # Returns:
 # Integer amount of characters in the resulting string
 int_to_hex:
+    push %r9
+    push %r10
+    push %r11
+    push %r12
+    
     mov %rsi, %r9
     xor %r10, %r10
     mov %rdi, %r11
@@ -27,6 +32,12 @@ int_to_hex:
     mov %r12, %rsi
     call mem_reverse_bytes
     mov %r12, %rax
+    
+    pop %r12
+    pop %r11
+    pop %r10
+    pop %r9
+    
     ret
 
 # Parameters:
@@ -34,6 +45,7 @@ int_to_hex:
 # Returns:
 # hex characters in %ax
 byte_to_hex:
+    push %r8
     xor %rax, %rax
     # first digit
     mov %rdi, %rcx
@@ -51,6 +63,7 @@ byte_to_hex:
     movb (%rdx), %r8b
     shl $8, %r8
     or  %r8, %rax
+    pop %r8
     ret
 
 # Pararameters:
@@ -59,6 +72,12 @@ byte_to_hex:
 # Returns
 # length of string
 int_to_dec:
+    push %r8
+    push %r9
+    push %r10
+    push %r11
+    push %r12
+    
     mov %rsi, %r8
     xor %r9, %r9
     int_to_dec_loop:
@@ -80,6 +99,12 @@ int_to_dec:
     mov %r12, %rsi
     call mem_reverse_bytes
     mov %r9, %rax
+    
+    pop %r12
+    pop %r11
+    pop %r10
+    pop %r9
+    pop %r8
     ret
 
 # Parameters:
@@ -88,6 +113,7 @@ int_to_dec:
 # Returns
 # length of string
 int_to_dec_s:
+    push %r8
     push %r12
     xor %r12, %r12
     cmp $0, %rdi
@@ -102,6 +128,7 @@ int_to_dec_s:
     call int_to_dec
     add %r12, %rax
     pop %r12
+    pop %r8
     ret
 
 .data

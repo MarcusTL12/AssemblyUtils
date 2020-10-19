@@ -13,12 +13,12 @@ strlen:
     xor %rax, %rax
     xor %r10, %r10
     dec %rax
-strlen_loop:
-    inc %rax
-    mov (%rdi), %r10b
-    inc %rdi
-    cmp $0, %r10b
-    jne strlen_loop
+    strlen_loop:
+        inc %rax
+        mov (%rdi), %r10b
+        inc %rdi
+        cmp $0, %r10b
+        jne strlen_loop
     ret
 
 # Parameters
@@ -35,12 +35,16 @@ print_n:
 # Parameters:
 # %rdi: Pointer to null terminated string
 print:
+    push %r10
+    push %r12
     mov %rdi, %r12
     mov %rdi, %rsi
     call strlen
     mov %r12, %rdi
     mov %rax, %rsi
     call print_n
+    pop %r12
+    pop %r10
     ret
 
 # Does not take parameters, or return anything.
