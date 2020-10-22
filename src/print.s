@@ -1,4 +1,3 @@
-.globl strlen
 .globl print
 .globl print_n
 .globl newline
@@ -6,20 +5,6 @@
 .globl print_int_dec
 .globl print_int_dec_s
 .text
-
-# Parameters:
-# %rdi: Pointer to null terminated string
-strlen:
-    xor %rax, %rax
-    xor %r10, %r10
-    dec %rax
-    strlen_loop:
-        inc %rax
-        mov (%rdi), %r10b
-        inc %rdi
-        cmp $0, %r10b
-        jne strlen_loop
-    ret
 
 # Parameters
 # %rdi: Pointer to string
