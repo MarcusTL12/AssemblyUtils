@@ -151,7 +151,6 @@ str_split_char:
         mov %rdi, (%rcx)
         add $8, %rcx
         
-        # And we increment the number of strings found
         inc %rax
         
         # Set length of current string to 0

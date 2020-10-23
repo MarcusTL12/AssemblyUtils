@@ -22,12 +22,14 @@ print_n:
 print:
     push %r10
     push %r12
+    push %rsi
     mov %rdi, %r12
     mov %rdi, %rsi
     call strlen
     mov %r12, %rdi
     mov %rax, %rsi
     call print_n
+    pop %rsi
     pop %r12
     pop %r10
     ret
@@ -35,9 +37,13 @@ print:
 # Does not take parameters, or return anything.
 # Only prits a newline character
 newline:
+    push %rdi
+    push %rsi
     mov $newline_char, %rdi
     mov $1, %rsi
     call print_n
+    pop %rsi
+    pop %rdi
     ret
 
 newline_char:
