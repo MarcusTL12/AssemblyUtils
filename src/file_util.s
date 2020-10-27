@@ -152,7 +152,8 @@ read_buffered_file:
     jnz read_buffered_file_load_and_fill
     
     # If the amount to still be read is greater than whats available
-    # The amount to be read is changed to the available amount
+    # The amount to be read is changed to the available amount.
+    # This happens when the file is empty so the buffer could not be filled
     cmp 32(%r12), %r13
     cmovg 32(%r12), %r13
     
@@ -196,14 +197,14 @@ read_buffered_file:
 read_buf_file_byte:
     dec %rsp
     
-    lea -1(%rbp), %rsi
+    lea (%rsp), %rsi
     xor %rdx, %rdx
     inc %rdx
     call read_buffered_file
     mov %rax, %r8
     
     xor %rax, %rax
-    movb -1(%rbp), %al
+    movb (%rsp), %al
     
     inc %rsp
     
@@ -243,8 +244,8 @@ read_buf_file_line:
     # and should start writing to the buffer
     
     find_end_of_line:
-        movb %al, (%r13)
-        inc %r13
+        movb %al, (%r13, %r14, 1)
+        # inc %r13
         inc %r14
         
         mov %r12, %rdi
