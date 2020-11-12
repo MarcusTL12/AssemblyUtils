@@ -5,49 +5,6 @@
 .globl str_split_char
 .text
 
-# Parameters:
-# %rdi: Pointer to null terminated string
-# Returns length of string
-strlen:
-    xor %rax, %rax
-    xor %r10, %r10
-    dec %rax
-    strlen_loop:
-        inc %rax
-        mov (%rdi), %r10b
-        inc %rdi
-        cmp $0, %r10b
-        jne strlen_loop
-    ret
-
-# Parameters:
-# %rdi: Pointer to null terminated string 1
-# %rsi: Pointer to null terminated string 2
-str_eq:
-    push %r12
-    push %r13
-    
-    xor %rax, %rax
-    
-    str_eq_loop:
-        xor %r12, %r12
-        xor %r13, %r13
-        movb (%rdi), %r12b
-        movb (%rsi), %r13b
-        cmp %r12, %r13
-        jne str_eq_loop_false
-        
-        inc %rdi
-        inc %rsi
-        
-        test %r12, %r12
-        jnz str_eq_loop
-    inc %rax
-    str_eq_loop_false:
-    
-    pop %r13
-    pop %r12
-    ret
 
 # Parameters:
 # %rdi: pointer to string
