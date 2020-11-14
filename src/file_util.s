@@ -2,6 +2,8 @@
 .globl read_file
 .globl close_file
 
+.globl file_size
+
 .globl make_buffered_file_reader
 .globl read_buffered_file
 .globl read_buf_file_byte
@@ -262,4 +264,20 @@ read_buf_file_line:
     pop %r14
     pop %r13
     pop %r12
+    ret
+
+
+# Parameters:
+# %rdi: Filename
+# Returns size of file in bytes
+file_size:
+    push %rbp
+    mov %rsp, %rbp
+    sub $-144, %rsp
+    
+    mov %rsp, %rsi
+    call stat
+    mov 48(%rsp), %rax
+    
+    leave
     ret
