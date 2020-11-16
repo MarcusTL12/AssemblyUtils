@@ -5,6 +5,7 @@
 .globl str_split_char
 .globl str_make_token_iterator
 .globl str_next_token
+.globl str_is_number
 .text
 
 
@@ -219,4 +220,54 @@ str_next_token:
     str_token_empty:
     xor %rax, %rax
     movq $0, 8(%rdi)
+    ret
+
+
+# Parameters:
+# %rdi: String pointer
+# %rsi: Length of string
+# Returns true if string contains a number
+str_is_number:
+    push %rbx
+    push %r12
+    push %r13
+    xor %r8, %r8
+    xor %r9, %r9
+    inc %r9
+    
+    mov (%rdi), %cl
+    cmp $'-', %cl
+    
+    cmove %r9, %r8
+    
+    add %r8, %rdi
+    sub %r8, %rsi
+    
+    xor %rbx, %rbx
+    mov %rdi, %r12
+    mov %rsi, %r13
+    
+    str_is_number_loop:
+        xor %rdi, %rdi
+        mov (%r12), %dil
+        call isdigit
+        
+        xor %r8, %r8
+        inc %r8
+        
+        test %rax, %rax
+        setz %bl
+        cmovz %r8, %r13
+        
+        inc %r12
+        dec %r13
+        jnz str_is_number_loop
+    
+    xor %rax, %rax
+    test %rbx, %rbx
+    setz %al
+    
+    pop %r13
+    pop %r12
+    pop %rbx
     ret
