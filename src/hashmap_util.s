@@ -1,5 +1,7 @@
 .globl hashmap_test
 .globl generic_hashmap_new
+.globl generic_hash
+.globl generic_compare
 .globl custom_hashmap_new
 .globl simple_hash
 .text

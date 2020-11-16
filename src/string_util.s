@@ -3,6 +3,8 @@
 .globl parse_str_int_n
 .globl parse_str_int
 .globl str_split_char
+.globl str_make_token_iterator
+.globl str_next_token
 .text
 
 
@@ -61,7 +63,7 @@ parse_str_int:
 # Parameters:
 # %rdi: pointer to string
 # %rsi: length of string
-# %rdx: character to split on
+# %dl: character to split on
 # %rcx: pointer to buffer to put the substring pointers into
 # %r8: pointer to buffer to put the substring lenghts into
 # %r9: length of buffers
@@ -86,9 +88,8 @@ str_split_char:
             # Check if the current character is a split-char
             # If not exit the loop
             # or increment the string pointer
-            xor %r12, %r12
             movb (%rdi), %r12b
-            cmp %rdx, %r12
+            cmp %dl, %r12b
             jne str_split_char_find_nonsplit_end
             # Increment the string pointer and decrement the remaining
             # length of the string
@@ -118,9 +119,8 @@ str_split_char:
             # Check if current char is splitting
             # If it is, jump out of the loop
             # If not, increment string pointer
-            xor %r12, %r12
             movb (%rdi), %r12b
-            cmp %rdx, %r12
+            cmp %dl, %r12b
             je str_split_char_find_substring_end
             # Increment the string pointer and decrement the remaining
             # length of the string
@@ -159,4 +159,64 @@ str_split_char:
     mov %r10, (%r8)
     str_split_char_loop_end:
     pop %r12
+    ret
+
+# String token iterator struct:
+# Size: 17 bytes
+# [0, 8): Current string pointer
+# [8, 16): Remaining length of string
+# 16: character to split on
+
+
+# Parameters:
+# %rdi: Pointer to token iterator object
+# %rsi: Pointer to string
+# %rdx: Length of string
+# %cl: character to split on
+str_make_token_iterator:
+    mov %rsi, (%rdi)
+    mov %rdx, 8(%rdi)
+    mov %cl, 16(%rdi)
+    ret
+
+
+# Parameters
+# %rdi: Pointer to token iterator
+# %rsi: Pointer to save token start to
+# Returns length of token; 0 means string is empty
+str_next_token:
+    mov (%rdi), %r8
+    mov 8(%rdi), %rcx
+    mov 16(%rdi), %dl
+    str_token_find_non_split:
+        cmp (%r8), %dl
+        jne str_token_find_non_split_end
+        
+        inc %r8
+        dec %rcx
+        jz str_token_empty
+        jmp str_token_find_non_split
+    str_token_find_non_split_end:
+    
+    mov %r8, (%rsi)
+    
+    str_token_find_split:
+        cmp (%r8), %dl
+        je str_token_find_split_end
+        
+        inc %r8
+        dec %rcx
+        jnz str_token_find_split
+    str_token_find_split_end:
+    
+    mov %r8, (%rdi)
+    mov %rcx, 8(%rdi)
+    sub (%rsi), %r8
+    mov %r8, %rax
+    
+    ret
+    
+    str_token_empty:
+    xor %rax, %rax
+    movq $0, 8(%rdi)
     ret
