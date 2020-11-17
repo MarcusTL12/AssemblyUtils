@@ -9,6 +9,8 @@
 .globl read_buf_file_byte
 .globl read_buf_file_line
 
+.globl file_map_lines
+
 .text
 
 # Parameters:
@@ -281,3 +283,81 @@ file_size:
     
     leave
     ret
+
+
+# Parameters:
+# %rdi: Filename
+# %rsi: max line length
+# %rdx: function to map (f(str_ptr, str_len, data))
+# %rcx: value/pointer to be passed to the function as third argument
+file_map_lines:
+    push %rbx
+    push %r12
+    push %r13
+    push %r14
+    
+    .set buffer_size, 1024
+    
+    .set buf_reader, 40
+    push %rbp
+    mov %rsp, %rbp
+    sub $buf_reader, %rsp
+    
+    mov %rsi, %r12
+    mov %rdx, %r13
+    mov %rcx, %r14
+    
+    call open_file_r
+    mov %rax, %rbx
+    
+    mov $buffer_size, %rdi
+    call malloc
+    
+    lea -buf_reader(%rbp), %rdi
+    mov %rbx, %rsi
+    mov %rax, %rdx
+    mov $buffer_size, %rcx
+    call make_buffered_file_reader
+    
+    mov %r12, %rdi
+    call malloc
+    mov %rax, %r12
+    
+    
+    file_map_lines_loop:
+        lea -buf_reader(%rbp), %rdi
+        mov %r12, %rsi
+        call read_buf_file_line
+        test %rax, %rax
+        jz file_map_lines_loop_end
+        
+        mov %r12, %rdi
+        mov %rax, %rsi
+        mov %r14, %rdx
+        call *%r13
+        jmp file_map_lines_loop
+    file_map_lines_loop_end:
+    
+    
+    mov %r12, %rdi
+    call free
+    
+    mov -buf_reader(%rbp), %rdi
+    call close_file
+    
+    mov -buf_reader + 8(%rbp), %rdi
+    call free
+    
+    leave
+    
+    pop %r14
+    pop %r13
+    pop %r12
+    pop %rbx
+    ret
+
+
+.data
+
+tmpmsg:
+    .string "Heisann!\n"
